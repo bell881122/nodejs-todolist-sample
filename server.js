@@ -1,18 +1,28 @@
 const http = require('http');
 
-const request = (status, content) => {
-    res.writeHead(status, { "Content-Type": "text/html" });
+const request = (res, status, content) => {
+    // CORS Header
+    res.writeHead(status, {
+        'Access-Control-Allow-Headers': 'Content-Type, Authorization, Content-Length, X-Requested-With',
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Methods': 'PATCH, POST, GET, OPTIONS, DELETE',
+        'Content-Type': 'application/json'
+    });
     res.write(content);
     res.end();
 }
 
 const requestListener = (req, res) => {
     if (req.url === "/" && req.method === "GET") {
-        request(200, "<h1>index</h1>")
-    } else if (req.url === "/" && req.method === "DELETE") {
-        request(200, "<h1>刪除成功</h1>")
+        request(res, 200, JSON.stringify({
+            status: "success",
+            data: []
+        }))
     } else {
-        request(404, "Not Found 404.")
+        request(res, 404, JSON.stringify({
+            status: "failed",
+            message: "無此路由"
+        }))
     }
 }
 
