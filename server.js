@@ -24,6 +24,13 @@ const requestListener = (req, res) => {
         }))
     }
 
+    const succRes = () => {
+        request(200, JSON.stringify({
+            status: "success",
+            data: todos
+        }))
+    }
+
     //註冊事件取得 body
     let body = "";
     req.on("data", chunk => {
@@ -45,10 +52,7 @@ const requestListener = (req, res) => {
                         title,
                         id: uuidv4()
                     })
-                    request(200, JSON.stringify({
-                        status: "success",
-                        data: todos
-                    }))
+                    succRes();
                 } else {
                     errorRes();
                 }
@@ -58,20 +62,14 @@ const requestListener = (req, res) => {
         });
     } else if (req.url === "/todos" && req.method === "DELETE") {
         todos.length = 0
-        request(200, JSON.stringify({
-            status: "success",
-            data: todos
-        }))
+        succRes();
     } else if (req.url.startsWith("/todos/") && req.method === "DELETE") {
         try {
             const id = req.url.split("/").pop();
             const index = todos.findIndex(e => e.id === id);
             if (index > -1) {
                 todos.splice(index, 1);
-                request(200, JSON.stringify({
-                    status: "success",
-                    data: todos,
-                }))
+                succRes();
             }
             else {
                 errorRes();
@@ -79,6 +77,22 @@ const requestListener = (req, res) => {
         } catch (err) {
             errorRes();
         }
+    } else if (req.url.startsWith("/todos/") && req.method === "PATCH") {
+        req.on('end', () => {
+            try {
+                const id = req.url.split("/").pop();
+                const index = todos.findIndex(e => e.id === id);
+                const title = JSON.parse(body).title;
+                if (title && index > -1) {
+                    todos[index].title = title;
+                    succRes();
+                } else {
+                    errorRes();
+                }
+            } catch (err) {
+                errorRes();
+            }
+        })
     } else if (req.method === "OPTIONS") {
         request(200);
     }
