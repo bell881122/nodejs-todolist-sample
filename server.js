@@ -14,6 +14,17 @@ const request = (res, status, content) => {
 }
 
 const requestListener = (req, res) => {
+
+    //註冊事件取得 body
+    let body = "";
+    req.on("data", chunk => {
+        body += chunk;
+    });
+    req.on("end", () => {
+        console.log(body)
+    });
+
+    //判斷 req 類型
     if (req.url === "/todos" && req.method === "GET") {
         request(res, 200, JSON.stringify({
             status: "success",
