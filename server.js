@@ -19,6 +19,11 @@ const requestListener = (req, res) => {
             status: "success",
             data: []
         }))
+    } else if (req.url === "/todos" && req.method === "POST") {
+        request(res, 200, JSON.stringify({
+            status: "success",
+            data: "POST 成功"
+        }))
     } else if (req.method === "OPTIONS") {
         request(res, 200);
     }
