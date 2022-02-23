@@ -1,45 +1,66 @@
 const http = require('http');
-
-const request = (res, status, content) => {
-    // CORS Header
-    res.writeHead(status, {
-        'Access-Control-Allow-Headers': 'Content-Type, Authorization, Content-Length, X-Requested-With',
-        'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Methods': 'PATCH, POST, GET, OPTIONS, DELETE',
-        'Content-Type': 'application/json'
-    });
-    if (content)
-        res.write(content);
-    res.end();
-}
+const { v4: uuidv4 } = require('uuid');
+const todos = [];
 
 const requestListener = (req, res) => {
+
+    const request = (status, content) => {
+        // CORS Header
+        res.writeHead(status, {
+            'Access-Control-Allow-Headers': 'Content-Type, Authorization, Content-Length, X-Requested-With',
+            'Access-Control-Allow-Origin': '*',
+            'Access-Control-Allow-Methods': 'PATCH, POST, GET, OPTIONS, DELETE',
+            'Content-Type': 'application/json'
+        });
+        if (content)
+            res.write(content);
+        res.end();
+    }
+
+    const postErrorRes = () => {
+        request(400, JSON.stringify({
+            status: "failed",
+            message: "欄位未填寫正確，或無此 id"
+        }))
+    }
 
     //註冊事件取得 body
     let body = "";
     req.on("data", chunk => {
         body += chunk;
     });
-    req.on("end", () => {
-        console.log(body)
-    });
 
     //判斷 req 類型
     if (req.url === "/todos" && req.method === "GET") {
-        request(res, 200, JSON.stringify({
+        request(200, JSON.stringify({
             status: "success",
-            data: []
+            data: todos
         }))
     } else if (req.url === "/todos" && req.method === "POST") {
-        request(res, 200, JSON.stringify({
-            status: "success",
-            data: "POST 成功"
-        }))
+        req.on("end", () => {
+            try {
+                const title = JSON.parse(body).title;
+                if (title) {
+                    todos.push({
+                        title,
+                        id: uuidv4()
+                    })
+                    request(200, JSON.stringify({
+                        status: "success",
+                        data: todos
+                    }))
+                } else {
+                    postErrorRes();
+                }
+            } catch (err) {
+                postErrorRes();
+            }
+        });
     } else if (req.method === "OPTIONS") {
-        request(res, 200);
+        request(200);
     }
     else {
-        request(res, 404, JSON.stringify({
+        request(404, JSON.stringify({
             status: "failed",
             message: "無此路由"
         }))
