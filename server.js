@@ -17,7 +17,7 @@ const requestListener = (req, res) => {
         res.end();
     }
 
-    const postErrorRes = () => {
+    const errorRes = () => {
         request(400, JSON.stringify({
             status: "failed",
             message: "欄位未填寫正確，或無此 id"
@@ -50,12 +50,35 @@ const requestListener = (req, res) => {
                         data: todos
                     }))
                 } else {
-                    postErrorRes();
+                    errorRes();
                 }
             } catch (err) {
-                postErrorRes();
+                errorRes();
             }
         });
+    } else if (req.url === "/todos" && req.method === "DELETE") {
+        todos.length = 0
+        request(200, JSON.stringify({
+            status: "success",
+            data: todos
+        }))
+    } else if (req.url.startsWith("/todos/") && req.method === "DELETE") {
+        try {
+            const id = req.url.split("/").pop();
+            const index = todos.findIndex(e => e.id === id);
+            if (index > -1) {
+                todos.splice(index, 1);
+                request(200, JSON.stringify({
+                    status: "success",
+                    data: todos,
+                }))
+            }
+            else {
+                errorRes();
+            }
+        } catch (err) {
+            errorRes();
+        }
     } else if (req.method === "OPTIONS") {
         request(200);
     }
