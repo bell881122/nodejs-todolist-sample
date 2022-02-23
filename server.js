@@ -8,17 +8,21 @@ const request = (res, status, content) => {
         'Access-Control-Allow-Methods': 'PATCH, POST, GET, OPTIONS, DELETE',
         'Content-Type': 'application/json'
     });
-    res.write(content);
+    if (content)
+        res.write(content);
     res.end();
 }
 
 const requestListener = (req, res) => {
-    if (req.url === "/" && req.method === "GET") {
+    if (req.url === "/todos" && req.method === "GET") {
         request(res, 200, JSON.stringify({
             status: "success",
             data: []
         }))
-    } else {
+    } else if (req.method === "OPTIONS") {
+        request(res, 200);
+    }
+    else {
         request(res, 404, JSON.stringify({
             status: "failed",
             message: "無此路由"
