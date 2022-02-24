@@ -39,10 +39,7 @@ const requestListener = (req, res) => {
 
     //判斷 req 類型
     if (req.url === "/todos" && req.method === "GET") {
-        request(200, JSON.stringify({
-            status: "success",
-            data: todos
-        }))
+        succRes();
     } else if (req.url === "/todos" && req.method === "POST") {
         req.on("end", () => {
             try {
