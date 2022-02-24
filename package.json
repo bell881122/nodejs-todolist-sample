@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "babel-watch server.js",
+    "start": "node server.js",
+    "dev": "babel-watch server.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
@@ -16,5 +17,8 @@
   "dependencies": {
     "@babel/core": "^7.17.5",
     "uuid": "^8.3.2"
+  },
+  "engines": {
+    "node": "14.x.x"
   }
 }
